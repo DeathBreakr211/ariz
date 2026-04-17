@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Death Breakr</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Orbitron', sans-serif;
+      background: linear-gradient(135deg,#0f172a,#1e293b,#0f172a);
+      color:white;
+      min-height:100vh;
+    }
+    .center { display:flex; align-items:center; justify-content:center; }
+    .card {
+      background:#1e293b;
+      border-radius:20px;
+      padding:30px;
+      box-shadow:0 0 40px rgba(59,130,246,0.4);
+      animation: fadeIn 0.6s ease;
+    }
+    input {
+      width:100%;
+      padding:12px;
+      margin:10px 0;
+      border-radius:10px;
+      border:none;
+      background:#334155;
+      color:white;
+    }
+    button {
+      padding:12px;
+      border:none;
+      border-radius:10px;
+      cursor:pointer;
+      font-weight:bold;
+      transition:0.3s ease;
+    }
+    .btn-primary { background:#3b82f6; color:white; width:100%; }
+    .btn-primary:hover { transform:scale(1.05); }
+    .btn-outline { background:white; color:black; width:100%; }
+    .header {
+      display:flex;
+      justify-content:space-between;
+      padding:20px 40px;
+      border-bottom:1px solid #334155;
+    }
+    .sidebar {
+      width:220px;
+      background:#1e293b;
+      padding:20px;
+      min-height:calc(100vh - 80px);
+    }
+    .sidebar button { width:100%; margin-bottom:10px; }
+    .content { flex:1; padding:40px; position:relative; overflow:hidden; }
+    .layout { display:flex; }
+    .tab {
+      position:absolute;
+      width:100%;
+      animation: slideIn 0.5s ease;
+    }
+    .status-online { color:#22c55e; text-shadow:0 0 15px #22c55e; }
+    .status-offline { color:#ef4444; text-shadow:0 0 15px #ef4444; }
+    @keyframes fadeIn {
+      from { opacity:0; transform:translateY(40px);} 
+      to { opacity:1; transform:translateY(0);} 
+    }
+    @keyframes slideIn {
+      from { opacity:0; transform:translateY(60px);} 
+      to { opacity:1; transform:translateY(0);} 
+    }
+  </style>
+</head>
+<body>
+
+<script>
+/* ===============================
+   OWNER CONTROL PANEL
+   Change to "online" or "offline"
+================================ */
+const SERVER_STATUS = "online";
+</script>
+
+<div id="app"></div>
+
+<script>
+const app = document.getElementById('app');
+
+function renderLogin() {
+  app.innerHTML = `
+  <div class="center" style="min-height:100vh;">
+    <div class="card" style="width:350px;">
+      <h2 style="text-align:center; margin-bottom:15px;">Death Breakr</h2>
+      <input id="username" placeholder="Username">
+      <input id="password" type="password" placeholder="Password">
+      <button class="btn-primary" onclick="handleAuth()">Login</button>
+      <button class="btn-outline" onclick="googleLogin()">Continue with Google</button>
+      <p style="text-align:center; margin-top:10px; cursor:pointer;" onclick="toggleMode()">No account? Create one</p>
+    </div>
+  </div>`;
+}
+
+let isLogin = true;
+
+function toggleMode(){
+  isLogin = !isLogin;
+  renderLogin();
+}
+
+function handleAuth(){
+  const username = document.getElementById('username').value;
+  const password = document.getElementById('password').value;
+  if(!username || !password) return alert('Fill all fields');
+
+  let accounts = JSON.parse(localStorage.getItem('death_accounts') || '{}');
+
+  if(isLogin){
+    if(accounts[username] === password){
+      localStorage.setItem('death_user', username);
+      renderDashboard();
+    } else alert('Invalid credentials');
+  } else {
+    if(accounts[username]) return alert('User exists');
+    accounts[username] = password;
+    localStorage.setItem('death_accounts', JSON.stringify(accounts));
+    alert('Account created!');
+    isLogin = true;
+    renderLogin();
+  }
+}
+
+function googleLogin(){
+  localStorage.setItem('death_user','GooglePlayer');
+  renderDashboard();
+}
+
+function logout(){
+  localStorage.removeItem('death_user');
+  renderLogin();
+}
+
+function renderDashboard(tab='dashboard'){
+  const user = localStorage.getItem('death_user');
+  const statusClass = SERVER_STATUS === 'online' ? 'status-online' : 'status-offline';
+
+  app.innerHTML = `
+  <div class="header">
+    <h2>Death Breakr</h2>
+    <div>
+      <span class="${statusClass}">${SERVER_STATUS.toUpperCase()}</span>
+      <span style="margin:0 15px;">${user}</span>
+      <button onclick="logout()">Logout</button>
+    </div>
+  </div>
+  <div class="layout">
+    <div class="sidebar">
+      <button onclick="renderDashboard('dashboard')">Dashboard</button>
+      <button onclick="renderDashboard('features')">Features</button>
+      <button onclick="renderDashboard('contact')">Email Contact</button>
+    </div>
+    <div class="content">
+      ${renderTab(tab)}
+    </div>
+  </div>`;
+}
+
+function renderTab(tab){
+  if(tab==='dashboard'){
+    return `<div class='tab'>
+      <div class='card'>
+        <h2>Server Information</h2>
+        <p>IP: DeathBreakr.aternos.me:44367</p>
+        <p>Mode: Pure Survival</p>
+        <p>Difficulty Mode: Normal</p>
+        <p>Version: 1.21.x</p>
+      </div>
+    </div>`;
+  }
+  if(tab==='features'){
+    return `<div class='tab'>
+      <div class='card'>
+        <h2>Server Features</h2>
+        <ul>
+          <li>✔ Cracked Support (TLauncher)</li>
+          <li>✔ Pure Survival Gameplay</li>
+          <li>✔ Difficulty Mode: Normal</li>
+          <li>✔ Survival Multiplayer</li>
+        </ul>
+      </div>
+    </div>`;
+  }
+  return `<div class='tab'>
+    <div class='card'>
+      <h2>Email Contact</h2>
+      <p>For support or inquiries:</p>
+      <p style='font-weight:bold;'>joshadventures13@gmail.com</p>
+    </div>
+  </div>`;
+}
+
+if(localStorage.getItem('death_user')) renderDashboard();
+else renderLogin();
+</script>
+
+</body>
+</html>
