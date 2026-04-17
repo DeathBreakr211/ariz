@@ -1,207 +1,222 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Death Breakr</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&display=swap" rel="stylesheet">
-  <style>
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body {
-      font-family: 'Orbitron', sans-serif;
-      background: linear-gradient(135deg,#0f172a,#1e293b,#0f172a);
-      color:white;
-      min-height:100vh;
-    }
-    .center { display:flex; align-items:center; justify-content:center; }
-    .card {
-      background:#1e293b;
-      border-radius:20px;
-      padding:30px;
-      box-shadow:0 0 40px rgba(59,130,246,0.4);
-      animation: fadeIn 0.6s ease;
-    }
-    input {
-      width:100%;
-      padding:12px;
-      margin:10px 0;
-      border-radius:10px;
-      border:none;
-      background:#334155;
-      color:white;
-    }
-    button {
-      padding:12px;
-      border:none;
-      border-radius:10px;
-      cursor:pointer;
-      font-weight:bold;
-      transition:0.3s ease;
-    }
-    .btn-primary { background:#3b82f6; color:white; width:100%; }
-    .btn-primary:hover { transform:scale(1.05); }
-    .btn-outline { background:white; color:black; width:100%; }
-    .header {
-      display:flex;
-      justify-content:space-between;
-      padding:20px 40px;
-      border-bottom:1px solid #334155;
-    }
-    .sidebar {
-      width:220px;
-      background:#1e293b;
-      padding:20px;
-      min-height:calc(100vh - 80px);
-    }
-    .sidebar button { width:100%; margin-bottom:10px; }
-    .content { flex:1; padding:40px; position:relative; overflow:hidden; }
-    .layout { display:flex; }
-    .tab {
-      position:absolute;
-      width:100%;
-      animation: slideIn 0.5s ease;
-    }
-    .status-online { color:#22c55e; text-shadow:0 0 15px #22c55e; }
-    .status-offline { color:#ef4444; text-shadow:0 0 15px #ef4444; }
-    @keyframes fadeIn {
-      from { opacity:0; transform:translateY(40px);} 
-      to { opacity:1; transform:translateY(0);} 
-    }
-    @keyframes slideIn {
-      from { opacity:0; transform:translateY(60px);} 
-      to { opacity:1; transform:translateY(0);} 
-    }
-  </style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Operation: Ariz</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:Segoe UI, sans-serif;
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+background:#06080f;
+overflow:hidden;
+color:#e6faff;
+}
+
+/* Animated Neon Background */
+body::before{
+content:"";
+position:fixed;
+width:200%;
+height:200%;
+background:
+radial-gradient(circle at 25% 35%, rgba(0,255,255,0.2), transparent 40%),
+radial-gradient(circle at 75% 70%, rgba(255,0,255,0.2), transparent 40%),
+radial-gradient(circle at 50% 50%, rgba(0,150,255,0.15), transparent 50%);
+animation:bgMove 20s linear infinite;
+z-index:-1;
+}
+
+@keyframes bgMove{
+0%{transform:translate(0,0);}
+50%{transform:translate(-15%,-15%);}
+100%{transform:translate(0,0);}
+}
+
+/* Glass Panel */
+.panel{
+width:92%;
+max-width:720px;
+padding:40px;
+border-radius:20px;
+background:rgba(15,20,35,0.7);
+backdrop-filter:blur(20px);
+border:1px solid rgba(0,255,255,0.4);
+box-shadow:0 0 40px rgba(0,255,255,0.25);
+text-align:center;
+animation:float 6s ease-in-out infinite;
+}
+
+@keyframes float{
+0%{transform:translateY(0);}
+50%{transform:translateY(-12px);}
+100%{transform:translateY(0);}
+}
+
+h1{
+margin-bottom:30px;
+letter-spacing:2px;
+text-shadow:0 0 15px #00f0ff;
+}
+
+#question{
+font-size:20px;
+line-height:1.8;
+letter-spacing:1px;
+min-height:110px;
+margin-bottom:30px;
+}
+
+button{
+width:100%;
+padding:14px;
+margin:12px 0;
+border-radius:12px;
+border:1px solid #00f0ff;
+background:transparent;
+color:#00f0ff;
+font-size:15px;
+cursor:pointer;
+transition:0.3s;
+}
+
+button:hover{
+background:#00f0ff;
+color:#06080f;
+box-shadow:0 0 15px #00f0ff;
+}
+
+.hidden{
+display:none;
+}
+
+#options{
+transition:all 0.4s ease;
+}
+</style>
 </head>
+
 <body>
 
+<div class="panel" id="menu">
+<h1>Shall We Start Operation: Ariz</h1>
+<button onclick="startGame()">Yes</button>
+<button onclick="startGame()">Sure</button>
+</div>
+
+<div class="panel hidden" id="game">
+<h1>Operation: Ariz</h1>
+<div id="question"></div>
+<div id="options"></div>
+</div>
+
+<audio id="clickSound" src="https://assets.mixkit.co/active_storage/sfx/270/270-preview.mp3"></audio>
+<audio id="typeSound" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"></audio>
+
 <script>
-/* ===============================
-   OWNER CONTROL PANEL
-   Change to "online" or "offline"
-================================ */
-const SERVER_STATUS = "online";
-</script>
 
-<div id="app"></div>
+const data = [
+{q:"Did Ariz once try to race a pigeon and lose badly?",a:"Yes absolutely",b:"Without a doubt"},
+{q:"Is Ariz secretly scared of his own reflection?",a:"Confirmed yes",b:"Obviously yes"},
+{q:"Did Ariz jump into a pool thinking it was a portal?",a:"He really did",b:"Legendary mistake"},
+{q:"Does Ariz practice dramatic speeches alone?",a:"Yes every time",b:"Of course he does"},
+{q:"Did Ariz blame WiFi for losing a game?",a:"Naturally yes",b:"Always yes"},
+{q:"Is Ariz powered by overconfidence?",a:"Definitely",b:"Extremely"},
+{q:"Did Ariz salute a ceiling fan once?",a:"Yes he did",b:"Absolutely"},
+{q:"Does Ariz think he is the main character?",a:"Clearly yes",b:"Main character energy"},
+{q:"Did Ariz try to download muscles?",a:"Yes he attempted",b:"Yes unsuccessfully"},
+{q:"Is Ariz slightly dramatic for no reason?",a:"Yes always",b:"Very dramatic"},
+{q:"Did Ariz scream during a horror movie?",a:"Yes instantly",b:"Without shame"},
+{q:"Does Ariz overreact to small things?",a:"Yes massively",b:"Of course massively"},
+{q:"Did Ariz argue with a mirror?",a:"Yes confidently",b:"Yes emotionally"},
+{q:"Is Ariz officially certified chaos material?",a:"Approved by galaxy",b:"Verified chaos"}
+];
 
-<script>
-const app = document.getElementById('app');
+let index = 0;
 
-function renderLogin() {
-  app.innerHTML = `
-  <div class="center" style="min-height:100vh;">
-    <div class="card" style="width:350px;">
-      <h2 style="text-align:center; margin-bottom:15px;">Death Breakr</h2>
-      <input id="username" placeholder="Username">
-      <input id="password" type="password" placeholder="Password">
-      <button class="btn-primary" onclick="handleAuth()">Login</button>
-      <button class="btn-outline" onclick="googleLogin()">Continue with Google</button>
-      <p style="text-align:center; margin-top:10px; cursor:pointer;" onclick="toggleMode()">No account? Create one</p>
-    </div>
-  </div>`;
+function startGame(){
+document.getElementById("menu").classList.add("hidden");
+document.getElementById("game").classList.remove("hidden");
+loadQuestion();
 }
 
-let isLogin = true;
+function loadQuestion(){
 
-function toggleMode(){
-  isLogin = !isLogin;
-  renderLogin();
+if(index >= data.length){
+document.getElementById("question").innerText =
+"Mission Complete. Subject Ariz Successfully Annoyed.";
+document.getElementById("options").innerHTML="";
+return;
 }
 
-function handleAuth(){
-  const username = document.getElementById('username').value;
-  const password = document.getElementById('password').value;
-  if(!username || !password) return alert('Fill all fields');
+const opt = document.getElementById("options");
+opt.style.opacity="0";
+opt.style.transform="translateY(10px)";
+opt.style.pointerEvents="none";
 
-  let accounts = JSON.parse(localStorage.getItem('death_accounts') || '{}');
-
-  if(isLogin){
-    if(accounts[username] === password){
-      localStorage.setItem('death_user', username);
-      renderDashboard();
-    } else alert('Invalid credentials');
-  } else {
-    if(accounts[username]) return alert('User exists');
-    accounts[username] = password;
-    localStorage.setItem('death_accounts', JSON.stringify(accounts));
-    alert('Account created!');
-    isLogin = true;
-    renderLogin();
-  }
+typeText(data[index].q);
 }
 
-function googleLogin(){
-  localStorage.setItem('death_user','GooglePlayer');
-  renderDashboard();
+function typeText(text){
+
+const q = document.getElementById("question");
+const typeSound = document.getElementById("typeSound");
+
+q.innerHTML="";
+let i=0;
+
+let interval = setInterval(()=>{
+
+q.innerHTML += text.charAt(i);
+
+typeSound.currentTime=0;
+typeSound.play();
+
+i++;
+
+if(i >= text.length){
+clearInterval(interval);
+setTimeout(showOptions,300);
 }
 
-function logout(){
-  localStorage.removeItem('death_user');
-  renderLogin();
+},35);
 }
 
-function renderDashboard(tab='dashboard'){
-  const user = localStorage.getItem('death_user');
-  const statusClass = SERVER_STATUS === 'online' ? 'status-online' : 'status-offline';
+function showOptions(){
 
-  app.innerHTML = `
-  <div class="header">
-    <h2>Death Breakr</h2>
-    <div>
-      <span class="${statusClass}">${SERVER_STATUS.toUpperCase()}</span>
-      <span style="margin:0 15px;">${user}</span>
-      <button onclick="logout()">Logout</button>
-    </div>
-  </div>
-  <div class="layout">
-    <div class="sidebar">
-      <button onclick="renderDashboard('dashboard')">Dashboard</button>
-      <button onclick="renderDashboard('features')">Features</button>
-      <button onclick="renderDashboard('contact')">Email Contact</button>
-    </div>
-    <div class="content">
-      ${renderTab(tab)}
-    </div>
-  </div>`;
+const opt = document.getElementById("options");
+const clickSound = document.getElementById("clickSound");
+
+opt.innerHTML="";
+
+["a","b"].forEach(letter=>{
+let btn=document.createElement("button");
+btn.innerText=data[index][letter];
+
+btn.onclick=()=>{
+clickSound.currentTime=0;
+clickSound.play();
+index++;
+loadQuestion();
+};
+
+opt.appendChild(btn);
+});
+
+opt.style.opacity="1";
+opt.style.transform="translateY(0)";
+opt.style.pointerEvents="auto";
 }
 
-function renderTab(tab){
-  if(tab==='dashboard'){
-    return `<div class='tab'>
-      <div class='card'>
-        <h2>Server Information</h2>
-        <p>IP: DeathBreakr.aternos.me:44367</p>
-        <p>Mode: Pure Survival</p>
-        <p>Difficulty Mode: Normal</p>
-        <p>Version: 1.21.x</p>
-      </div>
-    </div>`;
-  }
-  if(tab==='features'){
-    return `<div class='tab'>
-      <div class='card'>
-        <h2>Server Features</h2>
-        <ul>
-          <li>✔ Cracked Support (TLauncher)</li>
-          <li>✔ Pure Survival Gameplay</li>
-          <li>✔ Difficulty Mode: Normal</li>
-          <li>✔ Survival Multiplayer</li>
-        </ul>
-      </div>
-    </div>`;
-  }
-  return `<div class='tab'>
-    <div class='card'>
-      <h2>Email Contact</h2>
-      <p>For support or inquiries:</p>
-      <p style='font-weight:bold;'>joshadventures13@gmail.com</p>
-    </div>
-  </div>`;
-}
-
-if(localStorage.getItem('death_user')) renderDashboard();
-else renderLogin();
 </script>
 
 </body>
