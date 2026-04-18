@@ -152,9 +152,21 @@ loadQuestion();
 function loadQuestion(){
 
 if(index >= data.length){
-document.getElementById("question").innerText =
-"Mission Complete. Subject Ariz Successfully Annoyed.";
-document.getElementById("options").innerHTML="";
+
+const q = document.getElementById("question");
+const opt = document.getElementById("options");
+
+opt.innerHTML="";
+opt.style.opacity="0";
+
+q.innerHTML = `
+Mission Complete.<br><br>
+Subject Ariz Successfully Annoyed.<br><br>
+<span style="font-size:16px; opacity:0.8;">
+Special Thanks To Joshua Jobenson
+</span>
+`;
+
 return;
 }
 
